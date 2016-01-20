@@ -1,0 +1,10 @@
+name: VariableViewDistance
+main: yqt.mc.rdc.Main
+version: 1.0
+author: yqt1001
+commands:
+   vvd:
+      description: Variable View Distance
+      usage: /<command> action new-distance
+      permission: bukkit.op
+      permission-message: Get out of here plebian

@@ -19,7 +19,10 @@ public class Main extends JavaPlugin implements Listener {
 		if(!(Bukkit.getServer().getClass().getPackage().getName()).equals("org.bukkit.craftbukkit.v1_8_R3"))
 			enabled = false;
 		else 
+		{
 			ViewDistManager.onEnable();
+			NMSTest.onEnable();
+		}
 		
 		Bukkit.getPluginManager().registerEvents(this, this);
 	}
@@ -41,7 +44,7 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		if(e.getPlayer().isOp() && !enabled)
-			e.getPlayer().sendMessage("§cVariableViewDistance is disabled due to an NMS version mismatch or error!");
+			e.getPlayer().sendMessage(ViewDistManager.WATERMARK + " §cVariableViewDistance is disabled due to an NMS version mismatch or error!");
 	}
 	
 	public static Plugin getThis() {

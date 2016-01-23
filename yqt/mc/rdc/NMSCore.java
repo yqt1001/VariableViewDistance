@@ -1,12 +1,11 @@
 package yqt.mc.rdc;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 
-public class NMS {
+public class NMSCore {
 
 	private static final String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
 	
@@ -17,9 +16,8 @@ public class NMS {
 		try {
 			craftworldclass = Class.forName("org.bukkit.craftbukkit." + version + "CraftWorld");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			Bukkit.getServer().getLogger().severe("Serious NMS error.");
-			ViewDistManager.onDisable();
+			NMSExceptionHandling.handler(e);
+			return;
 		}
 		
 		//get the NMS PlayerChunkManager object for this world
@@ -31,10 +29,8 @@ public class NMS {
 		try {
 			Method viewDistChanger = pcm.getClass().getMethod("a", int.class);
 			viewDistChanger.invoke(pcm, vdist);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-			Bukkit.getServer().getLogger().severe("Serious NMS error.");
-			ViewDistManager.onDisable();
+		} catch (Exception e) {
+			NMSExceptionHandling.handler(e);
 		}
 	}
 	
@@ -45,9 +41,8 @@ public class NMS {
 		try {
 			craftserverclass = Class.forName("org.bukkit.craftbukkit." + version + "CraftServer");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			Bukkit.getServer().getLogger().severe("Serious NMS error.");
-			ViewDistManager.onDisable();
+			NMSExceptionHandling.handler(e);
+			return null;
 		}
 		
 		//get the NMS server class for this world which stores TPS data
@@ -55,10 +50,8 @@ public class NMS {
 		Object mcs = getPrivateField("console", craftserverclass, cs);
 		try {
 			return (double[]) mcs.getClass().getField("recentTps").get(mcs);
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-			Bukkit.getServer().getLogger().severe("Serious NMS error. ");
-			ViewDistManager.onDisable();
+		} catch (Exception e) {
+			NMSExceptionHandling.handler(e);
 			return null;
 		}
 	}
@@ -74,9 +67,7 @@ public class NMS {
 			f.setAccessible(true);
 			obj = f.get(o);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-			Bukkit.getServer().getLogger().severe("Serious NMS error. ");
-			ViewDistManager.onDisable();
+			NMSExceptionHandling.handler(e);
 		}
 		
 		return obj;

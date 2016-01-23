@@ -20,6 +20,8 @@ public class ViewDistManager {
 	private final static long TPS_TEST_SPEED = 200;
 	private final static long MAIN_RUNNABLE_SPEED = 2400;
 	
+	public final static String WATERMARK = "[§3§lVVD§f]";
+	
 	public static void onEnable() {
 		mainRunnable = new BukkitRunnable() {
 			@Override
@@ -81,12 +83,12 @@ public class ViewDistManager {
 						viewDist = 3;
 					
 					//change the view distance
-					NMS.setRenderDistance(viewDist);
+					NMSCore.setRenderDistance(viewDist);
 					
 					//message admins
 					for(Player p : Bukkit.getOnlinePlayers()) 
 						if(p.isOp())
-							p.sendMessage("§7[VVD] View distance has been changed by " + viewDistChange + " to " + viewDist);
+							p.sendMessage(WATERMARK + " §7View distance has been changed by " + viewDistChange + " to " + viewDist);
 					
 				}
 			}
@@ -103,11 +105,12 @@ public class ViewDistManager {
 	public static void onDisable() {
 		mainRunnable.cancel();
 		tpsCheckerRunnable.cancel();
+		Main.enabled = false;
 	}
 	
 	public static void tpsCheck() {
 		//gets TPS from inside server
-		double tps = NMS.getServerTPS()[0];
+		double tps = NMSCore.getServerTPS()[0];
 		if(tps > 20)
 			tps = 20.0;
 		
@@ -126,12 +129,12 @@ public class ViewDistManager {
 			{
 				Main.overwritten = false;
 				viewDist = Bukkit.getServer().getViewDistance();
-				NMS.setRenderDistance(viewDist);
+				NMSCore.setRenderDistance(viewDist);
 				onEnable();
-				sender.sendMessage("[VVD] Variable render distance is no longer overwritten.");
+				sender.sendMessage(WATERMARK + " §eVariable render distance is no longer overwritten.");
 			}
 			else
-				sender.sendMessage("[VVD] Variable render distance is not currently overwritten!");
+				sender.sendMessage(WATERMARK + " §cVariable render distance is not currently overwritten!");
 			
 			return true;
 		}
@@ -147,7 +150,7 @@ public class ViewDistManager {
 			//determine the trend
 			double trend = avg - prevAvg;
 			
-			sender.sendMessage("[VVD] Current server stats. 3m TPS: " + avg + " 3m Trend: " + trend + " Current render distance: " + viewDist);
+			sender.sendMessage(WATERMARK + " §eCurrent server stats. 3m TPS: §a" + Math.round(avg * 100.0) / 100.0 + " §e3m Trend: §a" + Math.round(trend * 100.0) / 100.0 + " §eCurrent render distance: §a" + viewDist);
 			
 			return true;
 		}
@@ -166,19 +169,19 @@ public class ViewDistManager {
 				
 				if(Main.overwritten)
 				{
-					NMS.setRenderDistance(newViewDist);
-					sender.sendMessage("[VVD] You have set the render distance to " + newViewDist);
+					NMSCore.setRenderDistance(newViewDist);
+					sender.sendMessage(WATERMARK + " §aYou have set the render distance to " + newViewDist);
 				}
 				else
 				{
 					Main.overwritten = true;
-					NMS.setRenderDistance(newViewDist);
+					NMSCore.setRenderDistance(newViewDist);
 					onDisable();
-					sender.sendMessage("[VVD] You have set the render distance to " + newViewDist);
+					sender.sendMessage(WATERMARK + " §aYou have set the render distance to " + newViewDist);
 				}
 			}
 			else
-				sender.sendMessage("[VVD] You cannot set a non-numeric render distance!");
+				sender.sendMessage(WATERMARK + " §cYou cannot set a non-numeric render distance!");
 			
 			return true;
 		}
@@ -186,6 +189,8 @@ public class ViewDistManager {
 		
 		return false;
 	}
+	
+	/* misc methods */
 	
 	public static boolean isNumeric(String s) {
 		for(Character c : s.toCharArray()) {

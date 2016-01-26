@@ -2,7 +2,7 @@ package yqt.mc.rdc;
 
 import org.bukkit.Bukkit;
 
-public class NMSTest {
+abstract class NMSTest {
 
 	//test to ensure the NMS code runs fine on startup
 	public static void onEnable() {
@@ -12,7 +12,7 @@ public class NMSTest {
 		
 		//set render distance to 6
 		NMSCore.setRenderDistance(6);
-		//back to 12
+		//back to config set value
 		NMSCore.setRenderDistance(Bukkit.getServer().getViewDistance());
 		
 		//check if test failed or succeeded

@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 
-public class NMSCore {
+abstract class NMSCore {
 
 	private static final String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
 	
@@ -66,7 +66,7 @@ public class NMSCore {
 			f = clazz.getDeclaredField(name);
 			f.setAccessible(true);
 			obj = f.get(o);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} catch (Exception e) {
 			NMSExceptionHandling.handler(e);
 		}
 		

@@ -7,4 +7,4 @@ commands:
       description: Variable View Distance
       usage: /<command> action new-distance
       permission: bukkit.op
-      permission-message: Get out of here plebian
+      permission-message: Get out of here plebeian

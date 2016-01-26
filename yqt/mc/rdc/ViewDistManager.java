@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-public class ViewDistManager {
+abstract class ViewDistManager {
 
 	private static BukkitTask mainRunnable;
 	private static BukkitTask tpsCheckerRunnable;
@@ -105,7 +105,6 @@ public class ViewDistManager {
 	public static void onDisable() {
 		mainRunnable.cancel();
 		tpsCheckerRunnable.cancel();
-		Main.enabled = false;
 	}
 	
 	public static void tpsCheck() {
@@ -121,6 +120,13 @@ public class ViewDistManager {
 	}
 	
 	public static boolean commandOverride(String[] args, CommandSender sender) {
+		
+		//double check to ensure that the plugin is not enabled
+		if(!Main.enabled)
+		{
+			sender.sendMessage(WATERMARK + " §cVariableViewDistance is disabled due to an NMS version mismatch or error!");
+			return true;
+		}
 		
 		//command case, just /vvd override
 		if(args.length == 1 && args[0].equalsIgnoreCase("override"))
@@ -150,7 +156,12 @@ public class ViewDistManager {
 			//determine the trend
 			double trend = avg - prevAvg;
 			
-			sender.sendMessage(WATERMARK + " §eCurrent server stats. 3m TPS: §a" + Math.round(avg * 100.0) / 100.0 + " §e3m Trend: §a" + Math.round(trend * 100.0) / 100.0 + " §eCurrent render distance: §a" + viewDist);
+			sender.sendMessage(WATERMARK + " §a§lCurrent server stats");
+			sender.sendMessage(WATERMARK + " §e3m TPS: §a" + Math.round(avg * 100.0) / 100.0);
+			sender.sendMessage(WATERMARK + " §e3m Trend: §a" + Math.round(trend * 100.0) / 100.0);
+			sender.sendMessage(WATERMARK + " §eCurrent render distance: §a" + viewDist);
+			sender.sendMessage(WATERMARK + " §eVVD enabled: " + ((Main.enabled) ? "§a" : "§c") + Main.enabled);
+			sender.sendMessage(WATERMARK + " §eVVD overwritten: " + ((Main.overwritten) ? "§a" : "§e") + Main.overwritten);
 			
 			return true;
 		}

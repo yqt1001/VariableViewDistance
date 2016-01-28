@@ -14,6 +14,8 @@ public class Main extends JavaPlugin implements Listener {
 	public static boolean enabled = true;
 	public static boolean overwritten = false;
 	
+	public static final int MAX_DIST = Bukkit.getServer().getViewDistance();
+	
 	@Override
 	public void onEnable() {
 		if(!(Bukkit.getServer().getClass().getPackage().getName()).equals("org.bukkit.craftbukkit.v1_8_R3"))

@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-abstract class ViewDistManager {
+public class ViewDistManager {
 
 	private static BukkitTask mainRunnable;
 	private static BukkitTask tpsCheckerRunnable;
 	private static LinkedList<Double> tpsTests = new LinkedList<Double>();
 	private static double prevAvg = 20;
-	private static int viewDist = Bukkit.getServer().getViewDistance();
+	private static int viewDist = Main.MAX_DIST;
 	
 	private final static int MAX_TPS_TESTS = 20;
 	private final static long TPS_TEST_SPEED = 200;
@@ -55,7 +55,7 @@ abstract class ViewDistManager {
 					}
 					
 					//if trending vaguely positive and low deviation, increase render distance
-					else if(trend <= 1 && trend > 0 && dev < 0.5 && viewDist != 12)
+					else if(trend <= 1 && trend > 0 && dev < 0.5 && viewDist != Main.MAX_DIST)
 						viewDistChange += 1;
 					
 					//if trending vaguely negative and high deviation, decrease render distance
@@ -67,7 +67,7 @@ abstract class ViewDistManager {
 						viewDistChange -= (int) dev / 2;
 					
 					//if trending positive and low deviation, increase render distance
-					if(trend > 0 && dev < 1 && viewDist != 12)
+					if(trend > 0 && dev < 1 && viewDist != Main.MAX_DIST)
 						viewDistChange += 1;
 					
 				}
@@ -77,8 +77,8 @@ abstract class ViewDistManager {
 				if(viewDistChange != 0)
 				{
 					//make sure view distance doesn't get too high nor too low
-					if(viewDist > 12)
-						viewDist = 12;
+					if(viewDist > Main.MAX_DIST)
+						viewDist = Main.MAX_DIST;
 					if(viewDist < 3)
 						viewDist = 3;
 					

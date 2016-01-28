@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 
-abstract class NMSCore {
+public class NMSCore {
 
 	private static final String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
 	
@@ -16,7 +16,7 @@ abstract class NMSCore {
 		try {
 			craftworldclass = Class.forName("org.bukkit.craftbukkit." + version + "CraftWorld");
 		} catch (ClassNotFoundException e) {
-			NMSExceptionHandling.handler(e);
+			handler(e);
 			return;
 		}
 		
@@ -30,7 +30,7 @@ abstract class NMSCore {
 			Method viewDistChanger = pcm.getClass().getMethod("a", int.class);
 			viewDistChanger.invoke(pcm, vdist);
 		} catch (Exception e) {
-			NMSExceptionHandling.handler(e);
+			handler(e);
 		}
 	}
 	
@@ -41,7 +41,7 @@ abstract class NMSCore {
 		try {
 			craftserverclass = Class.forName("org.bukkit.craftbukkit." + version + "CraftServer");
 		} catch (ClassNotFoundException e) {
-			NMSExceptionHandling.handler(e);
+			handler(e);
 			return null;
 		}
 		
@@ -51,7 +51,7 @@ abstract class NMSCore {
 		try {
 			return (double[]) mcs.getClass().getField("recentTps").get(mcs);
 		} catch (Exception e) {
-			NMSExceptionHandling.handler(e);
+			handler(e);
 			return null;
 		}
 	}
@@ -67,9 +67,17 @@ abstract class NMSCore {
 			f.setAccessible(true);
 			obj = f.get(o);
 		} catch (Exception e) {
-			NMSExceptionHandling.handler(e);
+			handler(e);
 		}
 		
 		return obj;
+	}
+	
+	//consistently handles NMS errors
+	public static void handler(Exception e) {
+		e.printStackTrace();
+		Bukkit.getServer().getLogger().severe("Serious NMS error.");
+		ViewDistManager.onDisable();
+		Main.enabled = false;
 	}
 }

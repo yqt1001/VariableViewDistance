@@ -10,19 +10,27 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class ViewDistManager {
 
-	private static BukkitTask mainRunnable;
-	private static BukkitTask tpsCheckerRunnable;
-	private static LinkedList<Double> tpsTests = new LinkedList<Double>();
-	private static double prevAvg = 20;
-	private static int viewDist = Main.MAX_DIST;
+	private BukkitTask mainRunnable;
+	private BukkitTask tpsCheckerRunnable;
+	private LinkedList<Double> tpsTests = new LinkedList<Double>();
+	private double prevAvg = 20;
+	private int viewDist = Bukkit.getViewDistance();
+	private VVD plugin;
 	
 	private final static int MAX_TPS_TESTS = 20;
 	private final static long TPS_TEST_SPEED = 200;
 	private final static long MAIN_RUNNABLE_SPEED = 2400;
-	
 	public final static String WATERMARK = "[§3§lVVD§f]";
 	
-	public static void onEnable() {
+	public ViewDistManager(VVD plugin) {
+		this.plugin = plugin;
+		this.init();
+	}
+	
+	public void init() {
+		if(!plugin.getVVDEnabled())
+			return;
+		
 		mainRunnable = new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -55,7 +63,7 @@ public class ViewDistManager {
 					}
 					
 					//if trending vaguely positive and low deviation, increase render distance
-					else if(trend <= 1 && trend > 0 && dev < 0.5 && viewDist != Main.MAX_DIST)
+					else if(trend <= 1 && trend > 0 && dev < 0.5 && viewDist != plugin.getMaxRenderDistance())
 						viewDistChange += 1;
 					
 					//if trending vaguely negative and high deviation, decrease render distance
@@ -67,7 +75,7 @@ public class ViewDistManager {
 						viewDistChange -= (int) dev / 2;
 					
 					//if trending positive and low deviation, increase render distance
-					if(trend > 0 && dev < 1 && viewDist != Main.MAX_DIST)
+					if(trend > 0 && dev < 1 && viewDist != plugin.getMaxRenderDistance())
 						viewDistChange += 1;
 					
 				}
@@ -77,13 +85,13 @@ public class ViewDistManager {
 				if(viewDistChange != 0)
 				{
 					//make sure view distance doesn't get too high nor too low
-					if(viewDist > Main.MAX_DIST)
-						viewDist = Main.MAX_DIST;
+					if(viewDist > plugin.getMaxRenderDistance())
+						viewDist = plugin.getMaxRenderDistance();
 					if(viewDist < 3)
 						viewDist = 3;
 					
 					//change the view distance
-					NMSCore.setRenderDistance(viewDist);
+					plugin.getNMS().setRenderDistance(viewDist);
 					
 					//message admins
 					for(Player p : Bukkit.getOnlinePlayers()) 
@@ -92,24 +100,27 @@ public class ViewDistManager {
 					
 				}
 			}
-		}.runTaskTimer(Main.getThis(), 600l, MAIN_RUNNABLE_SPEED);
+		}.runTaskTimer(plugin, 600l, MAIN_RUNNABLE_SPEED);
 		
 		tpsCheckerRunnable = new BukkitRunnable() {
 			@Override
 			public void run() {
 				tpsCheck();
 			}
-		}.runTaskTimer(Main.getThis(), 20l, TPS_TEST_SPEED);
+		}.runTaskTimer(plugin, 20l, TPS_TEST_SPEED);
 	}
 	
-	public static void onDisable() {
+	public void onDisable() {
+		if(!plugin.getVVDEnabled())
+			return;
+		
 		mainRunnable.cancel();
 		tpsCheckerRunnable.cancel();
 	}
 	
-	public static void tpsCheck() {
+	public void tpsCheck() {
 		//gets TPS from inside server
-		double tps = NMSCore.getServerTPS()[0];
+		double tps = plugin.getNMS().getServerTPS()[0];
 		if(tps > 20)
 			tps = 20.0;
 		
@@ -119,24 +130,24 @@ public class ViewDistManager {
 		tpsTests.add(tps);
 	}
 	
-	public static boolean commandOverride(String[] args, CommandSender sender) {
+	public boolean commandHandler(String[] args, CommandSender sender) {
 		
 		//double check to ensure that the plugin is not enabled
-		if(!Main.enabled)
+		if(!plugin.getVVDEnabled())
 		{
-			sender.sendMessage(WATERMARK + " §cVariableViewDistance is disabled due to an NMS version mismatch or error!");
+			sender.sendMessage(plugin.getErrorMessage());
 			return true;
 		}
 		
 		//command case, just /vvd override
 		if(args.length == 1 && args[0].equalsIgnoreCase("override"))
 		{
-			if(Main.overwritten)
+			if(plugin.getOverwritten())
 			{
-				Main.overwritten = false;
+				plugin.setOverwritten(false);
 				viewDist = Bukkit.getServer().getViewDistance();
-				NMSCore.setRenderDistance(viewDist);
-				onEnable();
+				plugin.getNMS().setRenderDistance(viewDist);
+				this.init();
 				sender.sendMessage(WATERMARK + " §eVariable render distance is no longer overwritten.");
 			}
 			else
@@ -160,8 +171,8 @@ public class ViewDistManager {
 			sender.sendMessage(WATERMARK + " §e3m TPS: §a" + Math.round(avg * 100.0) / 100.0);
 			sender.sendMessage(WATERMARK + " §e3m Trend: §a" + Math.round(trend * 100.0) / 100.0);
 			sender.sendMessage(WATERMARK + " §eCurrent render distance: §a" + viewDist);
-			sender.sendMessage(WATERMARK + " §eVVD enabled: " + ((Main.enabled) ? "§a" : "§c") + Main.enabled);
-			sender.sendMessage(WATERMARK + " §eVVD overwritten: " + ((Main.overwritten) ? "§a" : "§e") + Main.overwritten);
+			sender.sendMessage(WATERMARK + " §eVVD enabled: " + ((plugin.getVVDEnabled()) ? "§a" : "§c") + plugin.getVVDEnabled());
+			sender.sendMessage(WATERMARK + " §eVVD overwritten: " + ((plugin.getOverwritten()) ? "§a" : "§e") + plugin.getOverwritten());
 			
 			return true;
 		}
@@ -178,15 +189,15 @@ public class ViewDistManager {
 				if(newViewDist < 3)
 					newViewDist = 3;
 				
-				if(Main.overwritten)
+				if(plugin.getOverwritten())
 				{
-					NMSCore.setRenderDistance(newViewDist);
+					plugin.getNMS().setRenderDistance(newViewDist);
 					sender.sendMessage(WATERMARK + " §aYou have set the render distance to " + newViewDist);
 				}
 				else
 				{
-					Main.overwritten = true;
-					NMSCore.setRenderDistance(newViewDist);
+					plugin.setOverwritten(true);
+					plugin.getNMS().setRenderDistance(newViewDist);
 					onDisable();
 					sender.sendMessage(WATERMARK + " §aYou have set the render distance to " + newViewDist);
 				}
@@ -201,7 +212,7 @@ public class ViewDistManager {
 		return false;
 	}
 	
-	/* misc methods */
+	/* util methods */
 	
 	public static boolean isNumeric(String s) {
 		for(Character c : s.toCharArray()) {

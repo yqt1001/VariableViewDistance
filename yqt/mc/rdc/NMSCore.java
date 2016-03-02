@@ -5,11 +5,20 @@ import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 
+import yqt.mc.rdc.NMSTest.ErrorType;
+
 public class NMSCore {
 
 	private static final String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + ".";
+	private VVD plugin;
+	private boolean isTest;
 	
-	public static void setRenderDistance(int vdist) {
+	public NMSCore(VVD plugin, boolean test) {
+		this.plugin = plugin;
+		this.isTest = test;
+	}
+	
+	public void setRenderDistance(int vdist) {
 		
 		//get CraftBukkit CraftWorld class
 		Class <?> craftworldclass = null;
@@ -34,7 +43,7 @@ public class NMSCore {
 		}
 	}
 	
-	public static double[] getServerTPS() {
+	public double[] getServerTPS() {
 		//get CraftServer class
 		Class <?> craftserverclass = null;
 		
@@ -51,13 +60,13 @@ public class NMSCore {
 		try {
 			return (double[]) mcs.getClass().getField("recentTps").get(mcs);
 		} catch (Exception e) {
-			handler(e);
+			this.handler(e);
 			return null;
 		}
 	}
 	
 	
-	public static Object getPrivateField(String name, Class< ?> clazz, Object o) {
+	private Object getPrivateField(String name, Class< ?> clazz, Object o) {
 		
 		Field f = null;
 		Object obj = null;
@@ -67,17 +76,20 @@ public class NMSCore {
 			f.setAccessible(true);
 			obj = f.get(o);
 		} catch (Exception e) {
-			handler(e);
+			this.handler(e);
 		}
 		
 		return obj;
 	}
 	
 	//consistently handles NMS errors
-	public static void handler(Exception e) {
+	public void handler(Exception e) {
 		e.printStackTrace();
 		Bukkit.getServer().getLogger().severe("Serious NMS error.");
-		ViewDistManager.onDisable();
-		Main.enabled = false;
+		plugin.setVVDEnabled(false);
+		plugin.setErrorReason(ErrorType.NMS);
+		
+		if(!isTest)
+			plugin.getVVDManager().onDisable();
 	}
 }

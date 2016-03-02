@@ -1,5 +1,5 @@
 name: VariableViewDistance
-main: yqt.mc.rdc.Main
+main: yqt.mc.rdc.VVD
 version: 1.0
 author: yqt1001
 commands:

@@ -39,7 +39,7 @@ public class NMSCore {
 			Method viewDistChanger = pcm.getClass().getMethod("a", int.class);
 			viewDistChanger.invoke(pcm, vdist);
 		} catch (Exception e) {
-			handler(e);
+			this.handler(e);
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class NMSCore {
 		try {
 			craftserverclass = Class.forName("org.bukkit.craftbukkit." + version + "CraftServer");
 		} catch (ClassNotFoundException e) {
-			handler(e);
+			this.handler(e);
 			return null;
 		}
 		

@@ -80,6 +80,10 @@ public class ViewDistManager {
 					
 				}
 				
+				// if the current view distance is already out of bounds, stop any change
+				if(viewDist >= plugin.getMaxRenderDistance() || viewDist <= 3)
+					viewDistChange = 0;
+				
 				viewDist = viewDist + viewDistChange;
 				//if there is a needed change to render distance
 				if(viewDistChange != 0)
@@ -168,6 +172,7 @@ public class ViewDistManager {
 			double trend = avg - prevAvg;
 			
 			sender.sendMessage(WATERMARK + " §a§lCurrent server stats");
+			sender.sendMessage(WATERMARK + " §eTPS stored: §a" + tpsTests.size() + "/" + MAX_TPS_TESTS);
 			sender.sendMessage(WATERMARK + " §e3m TPS: §a" + Math.round(avg * 100.0) / 100.0);
 			sender.sendMessage(WATERMARK + " §e3m Trend: §a" + Math.round(trend * 100.0) / 100.0);
 			sender.sendMessage(WATERMARK + " §eCurrent render distance: §a" + viewDist);

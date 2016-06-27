@@ -1,9 +1,5 @@
 package yqt.mc.rdc;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 
 public class NMSTest {
@@ -12,7 +8,7 @@ public class NMSTest {
 	public static void test(VVD plugin) {
 		/* VERSIONS TEST */
 		// Supported server versions
-		List<String> versions = new LinkedList<String>(Arrays.asList("v1_8_R3", "v1_9_R1"));
+		/*List<String> versions = new LinkedList<String>(Arrays.asList("v1_8_R3", "v1_9_R1"));
 		String s = Bukkit.getServer().getClass().getName().substring(23, 30);
 		
 		if(!versions.contains(s) && !plugin.getDebug())
@@ -21,7 +17,9 @@ public class NMSTest {
 			plugin.setVVDEnabled(false);
 			plugin.setErrorReason(ErrorType.VERSION);
 			return;
-		}
+		}*/
+		
+		// Versions test removed because of the speed of Minecraft updates :x
 		
 		
 		/* NMS TEST */
